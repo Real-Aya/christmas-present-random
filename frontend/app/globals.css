@@ -55,6 +55,13 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: 'LINESeedSansTH', Arial, Helvetica, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+input, textarea, button {
+  user-select: auto;
+  -webkit-user-select: auto;
 }
 
 .text-stroke-black {

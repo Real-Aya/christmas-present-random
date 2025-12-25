@@ -12,11 +12,39 @@ export default function LoginPage() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioStartedRef = useRef(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const studentId = pin.join("");
     if (studentId.length === 5) {
-      router.push("/plays/card");
+      try {
+        const response = await fetch(`${process.env.API_WEBSITE}/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id: studentId }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          localStorage.setItem("studentId", studentId);
+
+          // Check if user already has a character selected
+          if (data.data && data.data.character) {
+            localStorage.setItem("studentCard", data.data.character);
+          } else {
+            localStorage.removeItem("studentCard");
+          }
+
+          router.push("/plays/card");
+        } else {
+          alert("Login failed. Please check your ID.");
+        }
+      } catch (error) {
+        console.error("Login error:", error);
+        alert("An error occurred during login.");
+      }
     }
   };
 
@@ -62,7 +90,7 @@ export default function LoginPage() {
     audio.volume = 0.25;
     audio.loop = true;
     audio.muted = true;
-    
+
     const startAudio = async () => {
       if (audioStartedRef.current || !audio.paused) return;
       try {
@@ -73,7 +101,7 @@ export default function LoginPage() {
         console.error("Audio play failed:", error);
       }
     };
-    
+
     const tryAutoplay = () => audio.readyState >= 2 && startAudio();
     const handleUserInteraction = () => {
       if (!audioStartedRef.current && audio.paused) {
@@ -82,11 +110,11 @@ export default function LoginPage() {
         events.forEach(e => document.removeEventListener(e, handleUserInteraction));
       }
     };
-    
+
     audio.addEventListener("canplay", tryAutoplay);
     audio.addEventListener("loadeddata", tryAutoplay);
     if (audio.readyState >= 2) tryAutoplay();
-    
+
     const events = ["click", "keydown", "touchstart", "mousedown", "pointerdown"];
     events.forEach(e => document.addEventListener(e, handleUserInteraction, { once: true }));
 
@@ -175,7 +203,7 @@ export default function LoginPage() {
           console.log("Audio loaded successfully");
         }}
       />
-      
+
       {/* Snow particles canvas */}
       <canvas
         ref={canvasRef}
@@ -183,7 +211,20 @@ export default function LoginPage() {
         style={{ background: "transparent" }}
       />
       <div className="relative z-10 w-full max-w-2xl px-6 mx-auto">
-        <div className="rounded-2xl border-2 border-red-500/30 bg-white p-12 shadow-2xl mx-auto">
+        <style jsx global>{`
+          @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .animate-fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+          }
+           .animate-fade-in-up-delay {
+            opacity: 0; /* Star invisible */
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s forwards;
+          }
+        `}</style>
+        <div className="rounded-2xl border-2 border-red-500/30 bg-white p-12 shadow-2xl mx-auto animate-fade-in-up">
           <div className="mb-10 text-center">
             <h1 className="mb-3 text-4xl font-bold text-black">
               เข้าสู่ระบบ
@@ -192,10 +233,10 @@ export default function LoginPage() {
               กรุณาใส่เลขประจำตัวนักเรียน
             </p>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="space-y-8">
             <div>
-              <label 
+              <label
                 className="block mb-3 text-base font-medium text-black text-center"
               >
                 เลขประจำตัวนักเรียน 5 หลัก
@@ -219,27 +260,27 @@ export default function LoginPage() {
                 ))}
               </div>
             </div>
-            
+
             <button
               type="submit"
               className="group relative w-full rounded-xl px-6 py-5 font-bold text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 focus:ring-offset-white shadow-lg hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] overflow-hidden border-2 border-red-600/20"
             >
               {/* Candy cane background with blur */}
-              <div 
+              <div
                 className="absolute inset-0"
                 style={{
                   background: 'repeating-linear-gradient(45deg, #ef4444 0px, #ef4444 16px, #ffffff 16px, #ffffff 32px)',
                   filter: 'blur(0.4px)',
                 }}
               ></div>
-              
+
               {/* Glossy overlay effect */}
               <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
-              
+
               {/* Shine effect on hover */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-              
-              <span 
+
+              <span
                 className="relative z-10 text-xl font-extrabold tracking-wide text-white text-stroke-black"
                 style={{
                   WebkitTextStroke: '4px black',
@@ -251,8 +292,8 @@ export default function LoginPage() {
             </button>
           </form>
         </div>
-        
-        <div className="mt-6 flex justify-center">
+
+        <div className="mt-6 flex justify-center animate-fade-in-up-delay">
           <button
             onClick={toggleMute}
             className="flex items-center gap-3 px-6 py-4 rounded-full bg-white/90 hover:bg-white shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 border-2 border-red-200"
