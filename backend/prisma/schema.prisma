@@ -1,0 +1,13 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model users {
+  id        String  @id(map: "id_unq") @db.VarChar
+  character String? @unique(map: "char_unq") @db.Char(1)
+}
