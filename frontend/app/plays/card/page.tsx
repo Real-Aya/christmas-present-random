@@ -372,7 +372,7 @@ export default function CardPage() {
                       <div className="absolute top-2 left-2 text-red-600 text-lg font-bold">
                         {isLoading ? "..." : (result || "?")}
                       </div>
-                      <div className={`text-7xl font-bold text-red-600 ${!isLoading && isSelected && hasPlayed ? 'animate-pop-in' : ''}`}>
+                      <div className={`text-7xl text-red-600 ${!isLoading && isSelected && hasPlayed ? 'animate-pop-in' : ''}`} style={{ fontFamily: 'Arial, sans-serif' }}>
                         {isLoading ? (
                           <svg className="animate-spin h-12 w-12 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
